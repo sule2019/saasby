@@ -24,7 +24,12 @@ def normalize_database_url(database_url: str | None) -> str:
     if not database_url:
         return "sqlite:///saasby.db"
     normalized = database_url.replace("postgres://", "postgresql://", 1)
+    if normalized.startswith("postgresql://") and not normalized.startswith("postgresql+psycopg://"):
+        normalized = normalized.replace("postgresql://", "postgresql+psycopg://", 1)
     if normalized.startswith("postgresql://") and "sslmode=" not in normalized:
+        separator = "&" if "?" in normalized else "?"
+        normalized = f"{normalized}{separator}sslmode=require"
+    if normalized.startswith("postgresql+psycopg://") and "sslmode=" not in normalized:
         separator = "&" if "?" in normalized else "?"
         normalized = f"{normalized}{separator}sslmode=require"
     return normalized
