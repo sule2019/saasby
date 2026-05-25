@@ -1,0 +1,25 @@
+{% macro listing_card(listing, href=None) -%}
+  <a class="listing-card reveal" href="{{ href or url_for('listing_detail', slug=listing.slug) }}">
+    <div class="tile-top">
+      <div class="tile-logo">{{ listing.logo }}</div>
+      <div class="tile-titles">
+        <span class="card-name">{{ listing.name }}</span>
+        <span class="card-cat">{{ listing.category }}</span>
+      </div>
+    </div>
+    <p class="card-desc">{{ listing.description }}</p>
+    <div class="card-footer">
+      <div class="votes" data-state="none">
+        <button type="button" class="vote-btn vote-up" aria-label="Upvote">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+          <span class="vote-count">{{ listing.upvotes }}</span>
+        </button>
+        <span class="vote-divider"></span>
+        <button type="button" class="vote-btn vote-down" aria-label="Downvote">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="vote-count">{{ listing.downvotes }}</span>
+        </button>
+      </div>
+    </div>
+  </a>
+{%- endmacro %}

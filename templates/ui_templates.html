@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros/listing_card.html" import listing_card %}
+
+{% block title %}UI Templates — Saasby{% endblock %}
+
+{% block content %}
+  <main>
+    <section class="catalog-hero">
+      <div class="container">
+        <div class="catalog-copy">
+          <div class="detail-cat">UI Templates</div>
+          <h1 class="catalog-title">UI templates for fast-moving AI products.</h1>
+          <p class="catalog-subtitle">
+            Browse polished template kits for dashboards, marketing sites,
+            onboarding flows, and internal tooling.
+          </p>
+        </div>
+        <div class="hero-search catalog-search">
+          <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+          <input type="text" placeholder="Search UI templates…" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section catalog-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2>{{ listings|length }} UI templates</h2>
+            <p>Design systems, product shells, landing pages, and admin surfaces.</p>
+          </div>
+        </div>
+        <div class="listing-grid">
+          {% for listing in listings %}
+            {{ listing_card(listing) }}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

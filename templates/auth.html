@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{% if auth_mode == "signup" %}Create Account{% else %}Login{% endif %} — Saasby{% endblock %}
+
+{% block content %}
+  <main>
+    <section class="auth-shell">
+      <div class="container auth-wrap">
+        <div class="auth-card">
+          <div class="detail-cat">{% if auth_mode == "signup" %}Create account{% else %}Welcome back{% endif %}</div>
+          <h1 class="catalog-title auth-title">
+            {% if auth_mode == "signup" %}
+              Start launching products.
+            {% else %}
+              Log in to keep building.
+            {% endif %}
+          </h1>
+          <p class="catalog-subtitle auth-subtitle">
+            {% if auth_mode == "signup" %}
+              Create an account with email and password so you can submit products and manage launches.
+            {% else %}
+              Access your dashboard, submissions, and launch flow.
+            {% endif %}
+          </p>
+
+          <form method="post" class="auth-form">
+            {% if auth_mode == "signup" %}
+              <div class="field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" placeholder="Your name" required />
+              </div>
+            {% endif %}
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" required />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" placeholder="At least 8 characters" required />
+            </div>
+            {% if auth_mode == "signup" %}
+              <div class="field">
+                <label for="confirmPassword">Confirm password</label>
+                <input id="confirmPassword" name="confirm_password" type="password" placeholder="Repeat your password" required />
+              </div>
+            {% endif %}
+            <button type="submit" class="btn btn-launch btn-lg auth-submit">
+              {% if auth_mode == "signup" %}Create account{% else %}Login{% endif %}
+            </button>
+          </form>
+
+          <p class="auth-switch">
+            {% if auth_mode == "signup" %}
+              Already have an account?
+              <a href="{{ url_for('login') }}">Login</a>
+            {% else %}
+              Need an account?
+              <a href="{{ url_for('signup') }}">Sign up</a>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

@@ -1,0 +1,19 @@
+.DS_Store
+.env
+.env.local
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+instance/
+node_modules/
+
+# Local datasets and generated exports
+*.csv
+*.json
+
+# Keep the example env checked in
+!.env.example

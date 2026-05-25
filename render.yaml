@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: saasby
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: AUTO_INIT_DB
+        value: "1"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: APP_BASE_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: NEON_AUTH_BASE_URL
+        sync: false

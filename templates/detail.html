@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% from "macros/listing_card.html" import listing_card %}
+
+{% block title %}{{ listing.name }} — Saasby{% endblock %}
+
+{% block content %}
+  <main>
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a>
+        <span class="sep">/</span>
+        <a href="#">{{ listing.category }}</a>
+        <span class="sep">/</span>
+        <span class="current">{{ listing.name }}</span>
+      </div>
+
+      <div class="detail-layout">
+        <div class="detail-main">
+          <div class="detail-head">
+            <span class="detail-cat">{{ listing.category }}</span>
+            <div class="detail-title-row">
+              <span class="detail-logo">{{ listing.logo }}</span>
+              <h1 class="detail-title">{{ listing.name }}</h1>
+            </div>
+            <p class="detail-tagline">{{ listing.tagline }}</p>
+            <div class="detail-meta-row">
+              {% if listing.oss %}
+                <span class="oss-pill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.04-.02-2.05-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.05.14 3 .4 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22 0 1.6-.01 2.89-.01 3.29 0 .32.21.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/></svg>
+                  Open source
+                </span>
+              {% endif %}
+              <span class="meta-item">{{ listing.license_name }}</span>
+              <span class="meta-item">{{ listing.updated_at }}</span>
+              <div class="meta-actions">
+                <div class="votes" data-state="none">
+                  <button type="button" class="vote-btn vote-up" aria-label="Upvote">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                    <span class="vote-count">{{ listing.upvotes }}</span>
+                  </button>
+                  <span class="vote-divider"></span>
+                  <button type="button" class="vote-btn vote-down" aria-label="Downvote">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    <span class="vote-count">{{ listing.downvotes }}</span>
+                  </button>
+                </div>
+                <a href="{{ listing.website_url }}" class="icon-link" aria-label="Visit website" title="Visit website">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+            <div class="tabs">
+              <button class="tab active" data-tab="overview" data-scroll-target="overview-section">Overview</button>
+              <button class="tab" data-tab="overview" data-scroll-target="install-section">Install</button>
+              <button class="tab" data-tab="overview" data-scroll-target="tools-section">Tools &amp; API</button>
+              <button class="tab" data-tab="overview" data-scroll-target="examples-section">Examples</button>
+              <button class="tab" data-tab="discussions">Discussions</button>
+              <button class="tab" data-tab="docs">Docs</button>
+              <button class="tab" data-tab="faqs">FAQs</button>
+            </div>
+
+            <div class="tab-panel active" data-panel="overview">
+              <section class="detail-section-anchor" id="overview-section">
+                <h2 class="detail-section-title">Overview</h2>
+                <div class="prose">
+                  <p>{{ listing.description }}</p>
+                </div>
+                {% if is_mcp %}
+                  <div class="overview-grid">
+                    <div class="overview-point">
+                      <div class="overview-label">What it does</div>
+                      <p>{{ listing.value_prop }}</p>
+                    </div>
+                    <div class="overview-point">
+                      <div class="overview-label">Who it&rsquo;s for</div>
+                      <p>{{ listing.overview[2] if listing.overview|length > 2 else listing.tagline }}</p>
+                    </div>
+                    <div class="overview-point">
+                      <div class="overview-label">Supported clients</div>
+                      <p>{{ listing.supported_clients|join(", ") }}</p>
+                    </div>
+                    <div class="overview-point">
+                      <div class="overview-label">Auth model</div>
+                      <p>{{ listing.auth_model }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+                <div class="prose">
+                  {% for paragraph in listing.overview %}
+                    <p>{{ paragraph }}</p>
+                  {% endfor %}
+                </div>
+              </section>
+
+              <section class="detail-section-anchor" id="install-section">
+                <h2 class="detail-section-title">Install</h2>
+                {% if is_mcp %}
+                  <div class="prose">
+                    <p>Setup steps, package install, config snippet, env vars, and local or hosted options all live here so teams can go from zero to running quickly.</p>
+                  </div>
+                {% endif %}
+                <div class="code-block">
+                  <button class="copy-btn" data-copy="{{ listing.install_command }}">Copy</button>
+                  <pre>{{ listing.install_command }}</pre>
+                </div>
+
+                <h3>Configuration</h3>
+                <div class="code-block">
+                  <button class="copy-btn" data-copy='{{ listing.config_snippet }}'>Copy</button>
+                  <pre>{{ listing.config_snippet }}</pre>
+                </div>
+              </section>
+
+              <section class="detail-section-anchor" id="tools-section">
+                <h2 class="detail-section-title">Tools &amp; API</h2>
+                {% if is_mcp %}
+                  <div class="overview-grid overview-grid-tight">
+                    <div class="overview-point">
+                      <div class="overview-label">Permissions</div>
+                      <ul class="mini-list">
+                        {% for item in listing.permissions %}
+                          <li>{{ item }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    <div class="overview-point">
+                      <div class="overview-label">Resources</div>
+                      <ul class="mini-list">
+                        {% for item in listing.resources %}
+                          <li>{{ item }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                {% endif %}
+                <div class="prose">
+                  <ul>
+                    {% for tool in listing.tools %}
+                      <li><strong>{{ tool.name }}</strong> — {{ tool.description }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </section>
+
+              <section class="detail-section-anchor" id="examples-section">
+                <h2 class="detail-section-title">Examples</h2>
+                <div class="example-list">
+                  {% for example in listing.examples %}
+                    <div class="example-card">
+                      <div class="example-title">{{ example.title }}</div>
+                      <p>{{ example.description }}</p>
+                    </div>
+                  {% else %}
+                    <div class="prose">
+                      <p>No examples have been added yet.</p>
+                    </div>
+                  {% endfor %}
+                </div>
+              </section>
+            </div>
+
+            <div class="tab-panel" data-panel="docs">
+              <div class="disc-head">
+                <div>
+                  <div class="disc-title">Docs</div>
+                  <div class="disc-sub">Full usage guides and integration walkthroughs.</div>
+                </div>
+              </div>
+              <div class="docs-list">
+                {% for doc in listing.docs %}
+                  <div class="doc-card">
+                    <div class="doc-title">{{ doc.title }}</div>
+                    <p>{{ doc.description }}</p>
+                  </div>
+                {% else %}
+                  <div class="prose">
+                    <p>Documentation links and guides will show up here.</p>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="tab-panel" data-panel="faqs">
+              <div class="disc-head">
+                <div>
+                  <div class="disc-title">FAQs</div>
+                  <div class="disc-sub">Common questions before you install or adopt it.</div>
+                </div>
+              </div>
+              <div class="faq-list">
+                {% for faq in listing.faqs %}
+                  <details class="faq-item"{% if loop.first %} open{% endif %}>
+                    <summary>{{ faq.question }}</summary>
+                    <p>{{ faq.answer }}</p>
+                  </details>
+                {% else %}
+                  <div class="prose">
+                    <p>No FAQs have been added yet.</p>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="tab-panel" data-panel="discussions">
+              <div class="disc-head">
+                <div>
+                  <div class="disc-title">Discussions</div>
+                  <div class="disc-sub">Questions, launch notes, and implementation tips.</div>
+                </div>
+                <div class="disc-count">{{ listing.discussions|length }} threads</div>
+              </div>
+
+              <div class="disc-composer">
+                <div class="disc-avatar">you</div>
+                <div class="disc-composer-body">
+                  <textarea rows="2" placeholder="Start a discussion or ask a question…"></textarea>
+                  <div class="disc-composer-actions">
+                    <div class="disc-hint">Share implementation notes or ask for help.</div>
+                    <button type="button" class="btn btn-primary disc-post">Post</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="disc-list">
+                {% for thread in listing.discussions %}
+                  <div class="disc-thread">
+                    <div class="disc-vote">
+                      <button type="button" class="disc-up" aria-label="Upvote">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                      </button>
+                      <span class="disc-score">{{ thread.score }}</span>
+                    </div>
+                    <div class="disc-body">
+                      <div class="disc-meta">
+                        <span class="disc-author">{{ thread.author }}</span>
+                        <span>·</span>
+                        <span>{{ thread.age }}</span>
+                        {% if thread.badge == "Question" %}
+                          <span class="disc-tag-q">{{ thread.badge }}</span>
+                        {% else %}
+                          <span class="disc-tag-show">{{ thread.badge }}</span>
+                        {% endif %}
+                      </div>
+                      <div class="disc-text">{{ thread.text }}</div>
+                      <div class="disc-foot">
+                        <button type="button" class="disc-action">Reply</button>
+                        <span class="disc-replies">No replies yet</span>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside>
+          <div class="side-card">
+            <div class="fact-list">
+              <div class="pricing-head">Quick facts</div>
+              {% for item in quick_facts %}
+                <div class="fact-row">
+                  <div class="fact-label">{{ item.label }}</div>
+                  {% if item.href %}
+                    <a href="{{ item.href }}" class="fact-value fact-link">{{ item.value }}</a>
+                  {% else %}
+                    <div class="fact-value">{{ item.value }}</div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+
+            <div class="card-features">
+              <div class="card-features-head">Features</div>
+              <div class="feature-list">
+                {% for feature in listing.features %}
+                  <div class="feature-row">
+                    <span class="fr-ic">
+                      {% if loop.index == 1 %}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      {% elif loop.index == 2 %}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+                      {% elif loop.index == 3 %}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>
+                      {% else %}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg>
+                      {% endif %}
+                    </span>
+                    <div>
+                      <div class="fr-t">{{ feature.title }}</div>
+                      <div class="fr-d">{{ feature.description }}</div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="tag-row">
+              {% for tag in listing.tags %}
+                <span class="tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <section class="related-section">
+        <h2 class="related-head">Related listings</h2>
+        <div class="listing-grid">
+          {% for item in related_listings %}
+            {{ listing_card(item) }}
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </main>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros/listing_card.html" import listing_card %}
+
+{% block title %}Products — Saasby{% endblock %}
+
+{% block content %}
+  <main>
+    <section class="catalog-hero">
+      <div class="container">
+        <div class="catalog-copy">
+          <div class="detail-cat">Products</div>
+          <h1 class="catalog-title">Explore AI products.</h1>
+          <p class="catalog-subtitle">
+            Browse every product in the directory in one continuous feed.
+          </p>
+        </div>
+        <div class="hero-search catalog-search">
+          <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+          <input type="text" placeholder="Search products…" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section catalog-section" id="explore">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2>Explore</h2>
+            <p>{{ listings|length }} products currently in the directory.</p>
+          </div>
+          <a href="{{ url_for('top_hundred') }}" class="see-all">Top 100 →</a>
+        </div>
+        <div class="listing-grid">
+          {% for listing in listings %}
+            {{ listing_card(listing) }}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

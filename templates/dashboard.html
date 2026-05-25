@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Saasby{% endblock %}
+
+{% block content %}
+  <main>
+    <section class="catalog-hero">
+      <div class="container">
+        <div class="catalog-copy">
+          <div class="detail-cat">Dashboard</div>
+          <h1 class="catalog-title">Your product launches.</h1>
+          <p class="catalog-subtitle">
+            Track what you&apos;ve submitted and keep everything in one place.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section catalog-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="serif-head section-head-compact">Recent submissions</h2>
+          </div>
+        </div>
+
+        {% if submissions %}
+          <div class="submission-list">
+            {% for submission in submissions %}
+              <div class="submission-card">
+                <div class="submission-top">
+                  <div>
+                    <div class="submission-name">{{ submission.name }}</div>
+                    <div class="submission-tagline">{{ submission.tagline }}</div>
+                  </div>
+                  <span class="submission-status submission-status-{{ submission.status }}">{{ submission.status|title }}</span>
+                </div>
+                <div class="submission-meta">
+                  <span>{{ submission.pricing }}</span>
+                  <span>·</span>
+                  <span>{{ submission.created_at.strftime("%b %d, %Y") }}</span>
+                </div>
+                <p class="submission-desc">{{ submission.description }}</p>
+                <div class="tag-row submission-tags">
+                  {% for tag in submission.tags %}
+                    <span class="tag">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <h3>No launches yet</h3>
+            <p>Use the Launch button to submit your first product.</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+{% endblock %}

@@ -1,0 +1,45 @@
+<footer>
+  <div class="container">
+    {% if compact_footer %}
+      <div class="footer-bottom footer-bottom-compact">
+        <span>© 2026 Saasby — Discover AI products.</span>
+        <span>Built for builders.</span>
+      </div>
+    {% else %}
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="{{ url_for('home') }}" class="logo">Saasby</a>
+          <p>
+            Curated product directory for AI builders. Discover the most popular
+            AI products, rising launches, and the top-ranked tools in one place.
+          </p>
+        </div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h4>Browse</h4>
+            <a href="{{ url_for('products') }}">Products</a>
+            <a href="/#most-popular">Most Popular This Month</a>
+            <a href="{{ url_for('top_hundred') }}">Top 100</a>
+          </div>
+          <div class="footer-col">
+            <h4>Contribute</h4>
+            <a href="#">Submit a Product</a>
+            <a href="#">Advertise</a>
+            <a href="#">Roadmap</a>
+          </div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <a href="#">About</a>
+            <a href="#">Login</a>
+            <a href="#">Sign up</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Saasby — Discover AI products.</span>
+        <span>Built for builders.</span>
+      </div>
+    {% endif %}
+  </div>
+</footer>
