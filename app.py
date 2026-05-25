@@ -10,9 +10,12 @@ import urllib.parse
 import urllib.request
 
 from flask import Flask, abort, flash, g, make_response, redirect, render_template, request, url_for
+from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
+
+load_dotenv()
 
 db = SQLAlchemy()
 
