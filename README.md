@@ -1,86 +1,31 @@
 # Saasby
 
-Saasby is a curated product directory for AI builders. It is a Flask app designed to run on Render with Neon Postgres and Neon Auth.
+**A transparent, community-driven launchpad for AI products.**
 
-## Stack
+Saasby is where AI builders launch their products and where the community discovers what's next. A launchpad where everyone who launches gets a fair shot — no pay-to-win rankings, no rigged feeds, no gatekeeping. Just builders putting their work in front of people who care.
 
-- Flask
-- SQLAlchemy
-- Neon Postgres
-- Neon Auth
-- Render
+### 🌐 [saasby.ai](https://saasby.ai/) — the product lives here
 
-## Features
+This repository holds the source code for Saasby. It's public for transparency — so anyone can see exactly how launches, rankings, and the directory work. To use Saasby, head to **[saasby.ai](https://saasby.ai/)**.
 
-- Product-focused landing page and browse flows
-- Top 100 and Most Popular product views
-- Neon Auth-backed signup and login
-- Product launch submissions saved to Postgres
-- Render-ready deployment config
+## What Saasby does
 
-## Local development
+- **Discover** — browse a curated feed of AI products.
+- **Find what's hot** — Top 100 and Most Popular views surface what people are actually using.
+- **Launch your own** — submit your product and get it in front of the community on a level playing field.
 
-1. Create a virtual environment and install dependencies:
+## Why Saasby
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+Most launch platforms quietly favor whoever has the biggest audience or the deepest pockets. Saasby is built on a different principle: a transparent, community-driven launchpad where every product gets a fair chance to be seen. The ranking logic is open, the playing field is level, and the focus is on the products builders actually ship — not on who can game the system.
 
-2. Copy the example env values and set your own:
+## Coming soon
 
-```bash
-cp .env.example .env
-```
+- **Public API / SDK** — fetch products, launches, and rankings programmatically.
 
-3. Export the env vars or load them with your preferred local env tool:
+## Contributing
 
-```bash
-export SECRET_KEY='change-me'
-export DATABASE_URL='postgresql://USER:PASSWORD@HOST/DB?sslmode=require'
-export NEON_AUTH_BASE_URL='https://YOUR-NEON-AUTH-HOST/api/auth'
-export APP_BASE_URL='http://127.0.0.1:5000'
-export AUTO_INIT_DB=1
-```
+Saasby is open source and contributions are welcome — bug fixes, features, UI improvements, all of it. If you spot something or have an idea, open an issue or send a pull request.
 
-4. Run the app:
+## License
 
-```bash
-flask --app app run
-```
-
-## Render deployment
-
-The repo includes `render.yaml`, so you can connect this repo directly in Render and set:
-
-- `DATABASE_URL`
-- `SECRET_KEY`
-- `NEON_AUTH_BASE_URL`
-- `APP_BASE_URL`
-- optional: `AUTO_INIT_DB=1`
-
-## Neon setup
-
-Use Neon for both:
-
-- Postgres
-- Neon Auth with email/password enabled
-
-Recommended auth settings:
-
-- provider: `better_auth`
-- require email verification
-- send verification email on sign up
-- use link-based email verification
-- trust your Render domain and local dev domain
-
-## Health check
-
-The app exposes:
-
-```bash
-GET /health
-```
-
-It returns a simple app + database status payload.
+MIT — see [LICENSE](LICENSE).
