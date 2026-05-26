@@ -62,6 +62,7 @@ def auth_api_request(
     *,
     body: dict[str, Any] | None = None,
     include_request_headers: bool = True,
+    origin: str | None = None,
 ) -> tuple[int, dict[str, Any], list[str]]:
     base_url = app.config.get("NEON_AUTH_BASE_URL", "")
     if not base_url:
@@ -74,6 +75,9 @@ def auth_api_request(
         headers.update(auth_headers_from_request())
     else:
         headers["Accept"] = "application/json"
+    if origin:
+        headers["Origin"] = origin
+        headers["Referer"] = origin.rstrip("/") + "/"
     req = urllib.request.Request(url, data=payload, headers=headers, method=method.upper())
 
     try:
@@ -782,6 +786,7 @@ def create_app() -> Flask:
                         "callbackURL": "/dashboard",
                     },
                     include_request_headers=False,
+                    origin=app.config["APP_BASE_URL"],
                 )
                 if status >= 400:
                     flash(payload.get("message") or "Unable to create your account.", "error")
@@ -826,6 +831,7 @@ def create_app() -> Flask:
                     "callbackURL": "/dashboard",
                 },
                 include_request_headers=False,
+                origin=app.config["APP_BASE_URL"],
             )
             if status >= 400:
                 flash(payload.get("message") or "Incorrect email or password.", "error")
