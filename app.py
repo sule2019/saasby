@@ -779,7 +779,7 @@ def create_app() -> Flask:
                         "name": name or email.split("@", 1)[0],
                         "email": email,
                         "password": password,
-                        "callbackURL": f"{app.config['APP_BASE_URL']}/dashboard",
+                        "callbackURL": "/dashboard",
                     },
                     include_request_headers=False,
                 )
@@ -823,7 +823,7 @@ def create_app() -> Flask:
                     "email": email,
                     "password": password,
                     "rememberMe": True,
-                    "callbackURL": f"{app.config['APP_BASE_URL']}/dashboard",
+                    "callbackURL": "/dashboard",
                 },
                 include_request_headers=False,
             )
