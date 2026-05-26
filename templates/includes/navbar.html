@@ -14,6 +14,9 @@
       </ul>
       <ul class="nav-right">
         {% if g.auth_user %}
+          {% if is_admin %}
+            <li><a href="{{ url_for('admin_dashboard') }}" class="btn btn-ghost">Admin</a></li>
+          {% endif %}
           <li><a href="{{ url_for('dashboard') }}" class="btn btn-ghost">Dashboard</a></li>
           <li>
             <form method="post" action="{{ url_for('logout') }}">

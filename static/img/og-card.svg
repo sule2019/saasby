@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#f9f8f7"/>
+  <rect x="40" y="40" width="1120" height="550" rx="36" fill="url(#bg)"/>
+  <circle cx="1050" cy="140" r="96" fill="rgba(255,255,255,0.12)"/>
+  <circle cx="980" cy="510" r="140" fill="rgba(255,255,255,0.08)"/>
+  <rect x="90" y="100" width="160" height="160" rx="36" fill="#ffffff"/>
+  <path d="M219.733 146.162C208.423 136.364 191.749 130.71 169.315 130.71C133.493 130.71 107.906 148.933 107.906 176.864C107.906 202.916 124.537 214.98 156.908 219.372L170.459 221.126C190.726 223.759 199.947 229.808 199.947 240.337C199.947 253.62 185.911 261.425 163.3 261.425C141.039 261.425 124.757 254.932 113.095 244.008L93.179 266.586C110.777 283.405 137.946 292.18 167.165 292.18C208.95 292.18 235.768 271.798 235.768 240.557C235.768 213.847 219.267 201.61 184.851 197.35L171.388 195.684C154.492 193.623 143.972 189.186 143.972 177.347C143.972 164.503 156.381 157.349 176.999 157.349C194.687 157.349 209.161 162.093 219.416 170.909L240.037 147.011L219.733 146.162Z" fill="#004bfe"/>
+  <text x="90" y="355" fill="#ffffff" font-family="Hedvig Letters Serif, Georgia, serif" font-size="80">Saasby</text>
+  <text x="90" y="430" fill="#dfe8ff" font-family="Bricolage Grotesque, Arial, sans-serif" font-size="34">A product directory for AI builders.</text>
+  <text x="90" y="490" fill="#ffffff" font-family="Bricolage Grotesque, Arial, sans-serif" font-size="58" font-weight="700">Discover and Launch</text>
+  <text x="90" y="555" fill="#8cd8ff" font-family="Bricolage Grotesque, Arial, sans-serif" font-size="58" font-weight="700">AI Products</text>
+  <defs>
+    <linearGradient id="bg" x1="40" y1="40" x2="1160" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#004bfe"/>
+      <stop offset="0.48" stop-color="#1b67ff"/>
+      <stop offset="1" stop-color="#00a3b1"/>
+    </linearGradient>
+  </defs>
+</svg>

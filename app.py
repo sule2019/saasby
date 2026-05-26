@@ -12,7 +12,7 @@ import urllib.request
 from flask import Flask, abort, flash, g, make_response, redirect, render_template, request, url_for
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 
 load_dotenv()
@@ -112,6 +112,50 @@ def session_required() -> Any:
     return redirect(url_for("login", next=request.path))
 
 
+def parse_multiline_list(value: str) -> list[str]:
+    return [line.strip() for line in (value or "").splitlines() if line.strip()]
+
+
+def is_admin_email(email: str | None, app: Flask) -> bool:
+    if not email:
+        return False
+    admins = {
+        item.strip().lower()
+        for item in app.config.get("ADMIN_EMAILS", "").split(",")
+        if item.strip()
+    }
+    return email.lower() in admins
+
+
+def admin_required(app: Flask) -> Any:
+    result = session_required()
+    if result is not None:
+        return result
+    if not is_admin_email(g.auth_user.get("email"), app):
+        abort(403)
+    return None
+
+
+def normalize_listing_detail(listing: Listing) -> dict[str, Any]:
+    screenshots = listing.screenshots or []
+    if not screenshots and listing.website_url and listing.website_url != "#":
+        screenshots = [f"{listing.website_url.rstrip('/')}/og-image"]
+    starting_price = listing.starting_price or listing.pricing
+    return {
+        "short_description": listing.short_description or listing.description,
+        "long_description": listing.long_description or " ".join(listing.overview) or listing.description,
+        "starting_price": starting_price,
+        "demo_url": listing.demo_url,
+        "founder_name": listing.founder_name or listing.author,
+        "location": listing.location,
+        "screenshots": screenshots,
+        "what_it_does": listing.what_it_does or listing.overview,
+        "who_its_for": listing.who_its_for or [listing.tagline],
+        "use_cases": listing.use_cases,
+        "pricing_packages": listing.pricing_packages,
+    }
+
+
 class ProductSubmission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     auth_user_id = db.Column(db.String(255), nullable=False, index=True)
@@ -119,20 +163,97 @@ class ProductSubmission(db.Model):
     auth_name = db.Column(db.String(255), nullable=True)
     name = db.Column(db.String(140), nullable=False)
     tagline = db.Column(db.String(220), nullable=False)
+    short_description = db.Column(db.String(320), nullable=False)
+    long_description = db.Column(db.Text, nullable=False)
     website_url = db.Column(db.String(500), nullable=False)
-    repo_url = db.Column(db.String(500), nullable=True)
+    demo_url = db.Column(db.String(500), nullable=True)
+    github_url = db.Column(db.String(500), nullable=True)
     pricing = db.Column(db.String(40), nullable=False)
-    license_name = db.Column(db.String(120), nullable=True)
-    description = db.Column(db.Text, nullable=False)
+    starting_price = db.Column(db.String(120), nullable=True)
+    founder_name = db.Column(db.String(255), nullable=True)
+    location = db.Column(db.String(255), nullable=True)
+    screenshots_text = db.Column(db.Text, nullable=True)
+    what_it_does_text = db.Column(db.Text, nullable=False)
+    who_its_for_text = db.Column(db.Text, nullable=False)
+    features_text = db.Column(db.Text, nullable=False)
+    use_cases_text = db.Column(db.Text, nullable=True)
     tags_text = db.Column(db.String(500), nullable=True)
     status = db.Column(db.String(40), nullable=False, default="pending")
+    admin_launch_date = db.Column(db.String(120), nullable=True)
+    admin_last_updated = db.Column(db.String(120), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
+    packages = db.relationship("ProductSubmissionPackage", backref="submission", cascade="all, delete-orphan")
 
     @property
     def tags(self) -> list[str]:
         if not self.tags_text:
             return []
         return [tag.strip() for tag in self.tags_text.split(",") if tag.strip()]
+
+    @property
+    def screenshots(self) -> list[str]:
+        if not self.screenshots_text:
+            return []
+        return [line.strip() for line in self.screenshots_text.splitlines() if line.strip()]
+
+    @property
+    def what_it_does(self) -> list[str]:
+        return [line.strip() for line in (self.what_it_does_text or "").splitlines() if line.strip()]
+
+    @property
+    def who_its_for(self) -> list[str]:
+        return [line.strip() for line in (self.who_its_for_text or "").splitlines() if line.strip()]
+
+    @property
+    def features(self) -> list[str]:
+        return [line.strip() for line in (self.features_text or "").splitlines() if line.strip()]
+
+    @property
+    def use_cases(self) -> list[str]:
+        return [line.strip() for line in (self.use_cases_text or "").splitlines() if line.strip()]
+
+
+class ProductSubmissionPackage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey("product_submission.id"), nullable=False, index=True)
+    package_name = db.Column(db.String(120), nullable=False)
+    package_price = db.Column(db.String(120), nullable=False)
+    package_description = db.Column(db.String(255), nullable=True)
+
+
+def ensure_submission_schema(app: Flask) -> None:
+    inspector = inspect(db.engine)
+    tables = set(inspector.get_table_names())
+    if "product_submission" not in tables:
+        db.create_all()
+        return
+
+    existing_columns = {column["name"] for column in inspector.get_columns("product_submission")}
+    product_submission_columns = {
+        "short_description": "TEXT",
+        "long_description": "TEXT",
+        "demo_url": "VARCHAR(500)",
+        "github_url": "VARCHAR(500)",
+        "starting_price": "VARCHAR(120)",
+        "founder_name": "VARCHAR(255)",
+        "location": "VARCHAR(255)",
+        "screenshots_text": "TEXT",
+        "what_it_does_text": "TEXT",
+        "who_its_for_text": "TEXT",
+        "features_text": "TEXT",
+        "use_cases_text": "TEXT",
+        "admin_launch_date": "VARCHAR(120)",
+        "admin_last_updated": "VARCHAR(120)",
+    }
+
+    with db.engine.begin() as connection:
+        for column_name, column_type in product_submission_columns.items():
+            if column_name in existing_columns:
+                continue
+            connection.execute(text(f"ALTER TABLE product_submission ADD COLUMN {column_name} {column_type}"))
+
+    if "product_submission_package" not in tables:
+        ProductSubmissionPackage.__table__.create(db.engine)
 
 
 @dataclass(frozen=True)
@@ -168,6 +289,19 @@ class Listing:
     faqs: list[dict[str, str]] = field(default_factory=list)
     permissions: list[str] = field(default_factory=list)
     resources: list[str] = field(default_factory=list)
+    short_description: str = ""
+    long_description: str = ""
+    starting_price: str = ""
+    demo_url: str = ""
+    founder_name: str = ""
+    location: str = ""
+    launch_date: str = ""
+    last_updated: str = ""
+    screenshots: list[str] = field(default_factory=list)
+    what_it_does: list[str] = field(default_factory=list)
+    who_its_for: list[str] = field(default_factory=list)
+    use_cases: list[str] = field(default_factory=list)
+    pricing_packages: list[dict[str, str]] = field(default_factory=list)
 
 
 LISTINGS: list[Listing] = [
@@ -670,6 +804,7 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
     app.config["NEON_AUTH_BASE_URL"] = normalize_auth_base_url(os.environ.get("NEON_AUTH_BASE_URL"))
     app.config["APP_BASE_URL"] = os.environ.get("APP_BASE_URL", "http://127.0.0.1:5000").rstrip("/")
+    app.config["ADMIN_EMAILS"] = os.environ.get("ADMIN_EMAILS", "")
 
     db.init_app(app)
 
@@ -725,7 +860,11 @@ def create_app() -> Flask:
                 "external": True,
             },
         ]
-        return {"nav_items": nav_items}
+        return {
+            "nav_items": nav_items,
+            "is_admin": is_admin_email((g.auth_user or {}).get("email"), app),
+            "app_base_url": app.config["APP_BASE_URL"],
+        }
 
     @app.route("/")
     def home() -> str:
@@ -763,7 +902,7 @@ def create_app() -> Flask:
     @app.route("/signup", methods=["GET", "POST"])
     def signup() -> str:
         if g.auth_user is not None:
-            return redirect(url_for("home"))
+            return redirect(url_for("dashboard"))
 
         if request.method == "POST":
             if not app.config["NEON_AUTH_BASE_URL"]:
@@ -818,7 +957,7 @@ def create_app() -> Flask:
     @app.route("/login", methods=["GET", "POST"])
     def login() -> str:
         if g.auth_user is not None:
-            return redirect(url_for("home"))
+            return redirect(url_for("dashboard"))
 
         if request.method == "POST":
             if not app.config["NEON_AUTH_BASE_URL"]:
@@ -887,6 +1026,42 @@ def create_app() -> Flask:
             compact_footer=False,
         )
 
+    @app.get("/admin")
+    def admin_dashboard() -> str:
+        result = admin_required(app)
+        if result is not None:
+            return result
+        submissions = ProductSubmission.query.order_by(ProductSubmission.created_at.desc()).all()
+        return render_template(
+            "admin.html",
+            submissions=submissions,
+            nav_cta_label="Launch",
+            nav_cta_badge="Free",
+            compact_footer=False,
+        )
+
+    @app.post("/admin/submissions/<int:submission_id>/review")
+    def review_submission(submission_id: int) -> Any:
+        result = admin_required(app)
+        if result is not None:
+            return result
+
+        submission = ProductSubmission.query.get_or_404(submission_id)
+        status = request.form.get("status", "").strip().lower()
+        launch_date = request.form.get("admin_launch_date", "").strip()
+        last_updated = request.form.get("admin_last_updated", "").strip()
+
+        if status not in {"pending", "approved", "rejected"}:
+            flash("Choose a valid review status.", "error")
+            return redirect(url_for("admin_dashboard"))
+
+        submission.status = status
+        submission.admin_launch_date = launch_date or None
+        submission.admin_last_updated = last_updated or None
+        db.session.commit()
+        flash(f"{submission.name} updated.", "success")
+        return redirect(url_for("admin_dashboard"))
+
     @app.post("/submit-product")
     def submit_product() -> Any:
         result = session_required()
@@ -894,24 +1069,44 @@ def create_app() -> Flask:
             return result
         name = request.form.get("name", "").strip()
         tagline = request.form.get("tagline", "").strip()
+        short_description = request.form.get("short_description", "").strip()
+        long_description = request.form.get("long_description", "").strip()
         website_url = request.form.get("website_url", "").strip()
-        repo_url = request.form.get("repo_url", "").strip()
+        demo_url = request.form.get("demo_url", "").strip()
+        github_url = request.form.get("github_url", "").strip()
         pricing = request.form.get("pricing", "").strip()
-        license_name = request.form.get("license_name", "").strip()
-        description = request.form.get("description", "").strip()
+        starting_price = request.form.get("starting_price", "").strip()
+        founder_name = request.form.get("founder_name", "").strip()
+        location = request.form.get("location", "").strip()
+        screenshots_text = request.form.get("screenshots_text", "").strip()
+        what_it_does_text = request.form.get("what_it_does_text", "").strip()
+        who_its_for_text = request.form.get("who_its_for_text", "").strip()
+        features_text = request.form.get("features_text", "").strip()
+        use_cases_text = request.form.get("use_cases_text", "").strip()
         tags_text = request.form.get("tags", "").strip()
+        package_names = request.form.getlist("package_name")
+        package_prices = request.form.getlist("package_price")
+        package_descriptions = request.form.getlist("package_description")
 
         errors: list[str] = []
         if not name:
             errors.append("Product name is required.")
         if not tagline:
             errors.append("A short tagline is required.")
+        if not short_description:
+            errors.append("A short description is required.")
+        if not long_description:
+            errors.append("A long description is required.")
         if not website_url.startswith("http"):
             errors.append("Enter a valid website URL.")
         if pricing not in {"Free", "Paid", "Freemium"}:
             errors.append("Choose a pricing option.")
-        if not description:
-            errors.append("A description is required.")
+        if not what_it_does_text:
+            errors.append("Add at least one line for what it does.")
+        if not who_its_for_text:
+            errors.append("Add at least one line for who it’s for.")
+        if not features_text:
+            errors.append("Add at least one feature.")
 
         if errors:
             for error in errors:
@@ -924,13 +1119,35 @@ def create_app() -> Flask:
             auth_name=g.auth_user.get("name"),
             name=name,
             tagline=tagline,
+            short_description=short_description,
+            long_description=long_description,
             website_url=website_url,
-            repo_url=repo_url or None,
+            demo_url=demo_url or None,
+            github_url=github_url or None,
             pricing=pricing,
-            license_name=license_name or None,
-            description=description,
+            starting_price=starting_price or None,
+            founder_name=founder_name or None,
+            location=location or None,
+            screenshots_text=screenshots_text or None,
+            what_it_does_text=what_it_does_text,
+            who_its_for_text=who_its_for_text,
+            features_text=features_text,
+            use_cases_text=use_cases_text or None,
             tags_text=tags_text or None,
         )
+        for package_name, package_price, package_description in zip(package_names, package_prices, package_descriptions):
+            if not package_name.strip() and not package_price.strip() and not package_description.strip():
+                continue
+            if not package_name.strip() or not package_price.strip():
+                flash("Pricing packages need at least a package name and price.", "error")
+                return redirect(request.referrer or url_for("home"))
+            submission.packages.append(
+                ProductSubmissionPackage(
+                    package_name=package_name.strip(),
+                    package_price=package_price.strip(),
+                    package_description=package_description.strip() or None,
+                )
+            )
         db.session.add(submission)
         db.session.commit()
         flash("Your product has been submitted for review.", "success")
@@ -957,21 +1174,27 @@ def create_app() -> Flask:
         listing = listing_map.get(slug)
         if listing is None or listing.category != "Product":
             abort(404)
-        related = [item for item in ranked_products() if item.slug != slug][:3]
         repo_label, repo_href = format_link(listing.repo_url)
         website_label, website_href = format_link(listing.website_url)
+        demo_label, demo_href = format_link(listing.demo_url)
+        detail_data = normalize_listing_detail(listing)
         quick_facts = [
             {"label": "Price", "value": "Free" if ("free" in listing.pricing.lower()) else "Paid", "href": ""},
-            {"label": "License", "value": listing.license_name, "href": ""},
-            {"label": "GitHub", "value": repo_label, "href": repo_href},
+            {"label": "Starting price", "value": detail_data["starting_price"], "href": ""},
+            {"label": "Founder", "value": detail_data["founder_name"], "href": ""},
+            {"label": "Location", "value": detail_data["location"] or "Not provided", "href": ""},
+            {"label": "Launch date", "value": listing.launch_date or "Set after approval", "href": ""},
+            {"label": "Last updated", "value": listing.last_updated or listing.updated_at, "href": ""},
             {"label": "Website", "value": website_label, "href": website_href},
+            {"label": "Demo", "value": demo_label or "Not provided", "href": demo_href},
+            {"label": "GitHub", "value": repo_label, "href": repo_href},
         ]
         return render_template(
             "detail.html",
             listing=listing,
-            related_listings=related,
             quick_facts=quick_facts,
             is_mcp=False,
+            detail_data=detail_data,
             nav_cta_label="Launch",
             nav_cta_badge="Free",
             compact_footer=True,
@@ -980,6 +1203,7 @@ def create_app() -> Flask:
     with app.app_context():
         if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite") or os.environ.get("AUTO_INIT_DB") == "1":
             db.create_all()
+            ensure_submission_schema(app)
 
     return app
 

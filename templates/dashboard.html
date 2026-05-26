@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}Dashboard — Saasby{% endblock %}
+{% block seo_title %}Dashboard — Saasby{% endblock %}
+{% block meta_description %}Manage your Saasby product submissions and track the status of your launches.{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
 
 {% block content %}
   <main>
@@ -40,7 +43,7 @@
                   <span>·</span>
                   <span>{{ submission.created_at.strftime("%b %d, %Y") }}</span>
                 </div>
-                <p class="submission-desc">{{ submission.description }}</p>
+                <p class="submission-desc">{{ submission.short_description }}</p>
                 <div class="tag-row submission-tags">
                   {% for tag in submission.tags %}
                     <span class="tag">{{ tag }}</span>

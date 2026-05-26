@@ -202,10 +202,28 @@
     });
   }
 
+  function setupPackageBuilder() {
+    const builder = document.getElementById("packageBuilder");
+    const addBtn = document.getElementById("addPackageBtn");
+    if (!builder || !addBtn) return;
+
+    addBtn.addEventListener("click", () => {
+      const row = document.createElement("div");
+      row.className = "package-row";
+      row.innerHTML = `
+        <input name="package_name" type="text" placeholder="Pro" />
+        <input name="package_price" type="text" placeholder="$49/mo" />
+        <input name="package_description" type="text" placeholder="For growing teams" />
+      `;
+      builder.appendChild(row);
+    });
+  }
+
   setupReveal();
   setupVotes();
   setupTabs();
   setupCopyButtons();
   setupDiscussions();
   setupModal();
+  setupPackageBuilder();
 })();

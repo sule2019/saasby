@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Admin — Saasby{% endblock %}
+{% block seo_title %}Admin — Saasby{% endblock %}
+{% block meta_description %}Internal Saasby review dashboard for product submissions and approval metadata.{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
+
+{% block content %}
+  <main>
+    <section class="catalog-hero">
+      <div class="container">
+        <div class="catalog-copy">
+          <div class="detail-cat">Admin</div>
+          <h1 class="catalog-title">Review product submissions.</h1>
+          <p class="catalog-subtitle">Use this view to review launches and decide launch date / last updated during approval.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section catalog-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="serif-head section-head-compact">Pending and recent submissions</h2>
+          </div>
+        </div>
+
+        <div class="submission-list">
+          {% for submission in submissions %}
+            <div class="submission-card submission-card-admin">
+              <div class="submission-top">
+                <div>
+                  <div class="submission-name">{{ submission.name }}</div>
+                  <div class="submission-tagline">{{ submission.tagline }}</div>
+                </div>
+                <span class="submission-status submission-status-{{ submission.status }}">{{ submission.status|title }}</span>
+              </div>
+
+              <div class="submission-meta">
+                <span>{{ submission.auth_email }}</span>
+                <span>·</span>
+                <span>{{ submission.pricing }}</span>
+                <span>·</span>
+                <span>{{ submission.created_at.strftime("%b %d, %Y") }}</span>
+              </div>
+
+              <p class="submission-desc submission-long">{{ submission.long_description }}</p>
+
+              <div class="admin-grid">
+                <div class="admin-block">
+                  <div class="admin-label">Short description</div>
+                  <p>{{ submission.short_description }}</p>
+                </div>
+                <div class="admin-block">
+                  <div class="admin-label">Founder / Location</div>
+                  <p>{{ submission.founder_name or "Not provided" }}{% if submission.location %} · {{ submission.location }}{% endif %}</p>
+                </div>
+                <div class="admin-block">
+                  <div class="admin-label">Links</div>
+                  <p><a href="{{ submission.website_url }}" class="fact-link" target="_blank" rel="noreferrer noopener">Website</a></p>
+                  {% if submission.demo_url %}
+                    <p><a href="{{ submission.demo_url }}" class="fact-link" target="_blank" rel="noreferrer noopener">Demo</a></p>
+                  {% endif %}
+                  {% if submission.github_url %}
+                    <p><a href="{{ submission.github_url }}" class="fact-link" target="_blank" rel="noreferrer noopener">GitHub</a></p>
+                  {% endif %}
+                </div>
+                <div class="admin-block">
+                  <div class="admin-label">What it does</div>
+                  <ul class="mini-list">
+                    {% for item in submission.what_it_does %}
+                      <li>{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="admin-block">
+                  <div class="admin-label">Who it’s for</div>
+                  <ul class="mini-list">
+                    {% for item in submission.who_its_for %}
+                      <li>{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="admin-block">
+                  <div class="admin-label">Features</div>
+                  <ul class="mini-list">
+                    {% for item in submission.features %}
+                      <li>{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="admin-block">
+                  <div class="admin-label">Use cases</div>
+                  <ul class="mini-list">
+                    {% for item in submission.use_cases %}
+                      <li>{{ item }}</li>
+                    {% else %}
+                      <li>Not provided</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+
+              {% if submission.screenshots %}
+                <div class="admin-block admin-screenshots">
+                  <div class="admin-label">Screenshots</div>
+                  <div class="screenshot-grid">
+                    {% for shot in submission.screenshots %}
+                      <div class="screenshot-card">
+                        <img src="{{ shot }}" alt="{{ submission.name }} screenshot {{ loop.index }}" loading="lazy" />
+                        <div class="screenshot-label">Screenshot {{ loop.index }}</div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+
+              {% if submission.packages %}
+                <div class="pricing-package-list">
+                  {% for package in submission.packages %}
+                    <div class="pricing-package-card">
+                      <div class="pricing-package-top">
+                        <div class="pricing-package-name">{{ package.package_name }}</div>
+                        <div class="pricing-package-price">{{ package.package_price }}</div>
+                      </div>
+                      {% if package.package_description %}
+                        <p class="pricing-package-desc">{{ package.package_description }}</p>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <form method="post" action="{{ url_for('review_submission', submission_id=submission.id) }}" class="admin-review-form">
+                <div class="field field-row">
+                  <div>
+                    <label for="status-{{ submission.id }}">Status</label>
+                    <select id="status-{{ submission.id }}" name="status">
+                      <option value="pending"{% if submission.status == "pending" %} selected{% endif %}>Pending</option>
+                      <option value="approved"{% if submission.status == "approved" %} selected{% endif %}>Approved</option>
+                      <option value="rejected"{% if submission.status == "rejected" %} selected{% endif %}>Rejected</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="launch-date-{{ submission.id }}">Launch date</label>
+                    <input id="launch-date-{{ submission.id }}" name="admin_launch_date" type="text" placeholder="May 25, 2026" value="{{ submission.admin_launch_date or '' }}" />
+                  </div>
+                </div>
+                <div class="field field-row">
+                  <div>
+                    <label for="updated-date-{{ submission.id }}">Last updated</label>
+                    <input id="updated-date-{{ submission.id }}" name="admin_last_updated" type="text" placeholder="May 25, 2026" value="{{ submission.admin_last_updated or '' }}" />
+                  </div>
+                  <div class="admin-review-actions">
+                    <button type="submit" class="btn btn-primary">Save review</button>
+                  </div>
+                </div>
+              </form>
+
+              <div class="tag-row submission-tags">
+                {% for tag in submission.tags %}
+                  <span class="tag">{{ tag }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <h3>No submissions yet</h3>
+              <p>New product launches will show up here.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

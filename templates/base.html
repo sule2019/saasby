@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Saasby{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Saasby is a product directory for AI builders to discover, rank, and launch AI products on a more level playing field.{% endblock %}" />
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}" />
+    <meta name="theme-color" content="#004bfe" />
+    <link rel="canonical" href="{% block canonical_url %}{{ request.url }}{% endblock %}" />
+    <meta property="og:site_name" content="Saasby" />
+    <meta property="og:title" content="{% block og_title %}{% block seo_title %}Saasby{% endblock %}{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}{% block seo_description %}Saasby is a product directory for AI builders to discover, rank, and launch AI products on a more level playing field.{% endblock %}{% endblock %}" />
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+    <meta property="og:url" content="{{ request.url }}" />
+    <meta property="og:image" content="{% block og_image %}{{ app_base_url }}{{ url_for('static', filename='img/og-card.svg') }}{% endblock %}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{% block twitter_title %}{% block seo_title_twitter %}Saasby{% endblock %}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}{% block seo_description_twitter %}Saasby is a product directory for AI builders to discover, rank, and launch AI products on a more level playing field.{% endblock %}{% endblock %}" />
+    <meta name="twitter:image" content="{% block twitter_image %}{{ app_base_url }}{{ url_for('static', filename='img/og-card.svg') }}{% endblock %}" />
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

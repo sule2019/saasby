@@ -1,35 +1,62 @@
 {% if g.auth_user %}
   <div class="modal-overlay" id="submitModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button type="button" class="modal-close" id="modalClose" aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
 
       <div class="form-cat-tag">Launching: Product</div>
       <h3 class="modal-title" id="modalTitle">Launch your product</h3>
-      <p class="modal-sub">Submit the basics and we&apos;ll review it for the directory.</p>
+      <p class="modal-sub">Launch date and last updated are handled during approval, so just focus on the product itself.</p>
 
       <form method="post" action="{{ url_for('submit_product') }}">
         <div class="form-grid">
-          <div class="field">
-            <label for="productName">Name</label>
-            <input id="productName" name="name" type="text" placeholder="e.g. Launchboard" required />
-          </div>
-          <div class="field">
-            <label for="productTagline">Short tagline</label>
-            <input id="productTagline" name="tagline" type="text" placeholder="One line describing what it does" required />
-          </div>
-          <div class="field">
-            <label for="productWebsite">Website</label>
-            <input id="productWebsite" name="website_url" type="url" placeholder="https://yourproduct.com" required />
-          </div>
-          <div class="field">
-            <label for="productRepo">Repository / demo link <span class="field-hint">(optional)</span></label>
-            <input id="productRepo" name="repo_url" type="url" placeholder="https://github.com/you/your-repo" />
-          </div>
           <div class="field field-row">
             <div>
-              <label for="productPricing">Pricing</label>
+              <label for="productName">Name</label>
+              <input id="productName" name="name" type="text" placeholder="e.g. Launchboard" required />
+            </div>
+            <div>
+              <label for="productTagline">Tagline</label>
+              <input id="productTagline" name="tagline" type="text" placeholder="One sharp line" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="shortDescription">Short description</label>
+            <textarea id="shortDescription" name="short_description" rows="2" placeholder="A short summary for the hero area." required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="longDescription">Long description</label>
+            <textarea id="longDescription" name="long_description" rows="5" placeholder="Describe the product in more depth." required></textarea>
+          </div>
+
+          <div class="field field-row">
+            <div>
+              <label for="productWebsite">Website</label>
+              <input id="productWebsite" name="website_url" type="url" placeholder="https://yourproduct.com" required />
+            </div>
+            <div>
+              <label for="productDemo">Demo <span class="field-hint">(optional)</span></label>
+              <input id="productDemo" name="demo_url" type="url" placeholder="https://demo.yourproduct.com" />
+            </div>
+          </div>
+
+          <div class="field field-row">
+            <div>
+              <label for="productGithub">GitHub <span class="field-hint">(optional)</span></label>
+              <input id="productGithub" name="github_url" type="url" placeholder="https://github.com/you/project" />
+            </div>
+            <div>
+              <label for="productTags">Tags <span class="field-hint">(comma separated)</span></label>
+              <input id="productTags" name="tags" type="text" placeholder="analytics, growth, product" />
+            </div>
+          </div>
+
+          <div class="field field-row">
+            <div>
+              <label for="productPricing">Pricing model</label>
               <select id="productPricing" name="pricing" required>
                 <option value="Free">Free</option>
                 <option value="Paid">Paid</option>
@@ -37,17 +64,57 @@
               </select>
             </div>
             <div>
-              <label for="productLicense">License</label>
-              <input id="productLicense" name="license_name" type="text" placeholder="Commercial / MIT / Custom" />
+              <label for="startingPrice">Starting price <span class="field-hint">(optional)</span></label>
+              <input id="startingPrice" name="starting_price" type="text" placeholder="$19/mo or Free" />
             </div>
           </div>
-          <div class="field">
-            <label for="productDescription">Description</label>
-            <textarea id="productDescription" name="description" rows="4" placeholder="Tell builders what it does, who it&apos;s for, and why it matters." required></textarea>
+
+          <div class="field field-row">
+            <div>
+              <label for="founderName">Founder name <span class="field-hint">(optional)</span></label>
+              <input id="founderName" name="founder_name" type="text" placeholder="Jane Doe" />
+            </div>
+            <div>
+              <label for="location">Location <span class="field-hint">(optional)</span></label>
+              <input id="location" name="location" type="text" placeholder="San Francisco, CA" />
+            </div>
           </div>
+
           <div class="field">
-            <label for="productTags">Tags <span class="field-hint">(comma separated)</span></label>
-            <input id="productTags" name="tags" type="text" placeholder="analytics, growth, product" />
+            <label for="screenshotsText">Screenshots <span class="field-hint">(one URL per line)</span></label>
+            <textarea id="screenshotsText" name="screenshots_text" rows="4" placeholder="https://..."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="whatItDoes">What it does <span class="field-hint">(one point per line)</span></label>
+            <textarea id="whatItDoes" name="what_it_does_text" rows="4" placeholder="What the product helps users do." required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="whoItsFor">Who it’s for <span class="field-hint">(one point per line)</span></label>
+            <textarea id="whoItsFor" name="who_its_for_text" rows="4" placeholder="Founders&#10;Growth teams&#10;Agencies" required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="featuresText">Features <span class="field-hint">(one point per line)</span></label>
+            <textarea id="featuresText" name="features_text" rows="4" placeholder="Key features" required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="useCasesText">Use cases <span class="field-hint">(one point per line, optional)</span></label>
+            <textarea id="useCasesText" name="use_cases_text" rows="4" placeholder="Lead generation&#10;Onboarding analytics"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Pricing packages <span class="field-hint">(optional)</span></label>
+            <div class="package-builder" id="packageBuilder">
+              <div class="package-row">
+                <input name="package_name" type="text" placeholder="Starter" />
+                <input name="package_price" type="text" placeholder="$19/mo" />
+                <input name="package_description" type="text" placeholder="For solo builders" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline package-add" id="addPackageBtn">Add package</button>
           </div>
         </div>
 

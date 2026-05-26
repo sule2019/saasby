@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}{% if auth_mode == "signup" %}Create Account{% else %}Login{% endif %} — Saasby{% endblock %}
+{% block seo_title %}{% if auth_mode == "signup" %}Create Account{% else %}Login{% endif %} — Saasby{% endblock %}
+{% block meta_description %}{% if auth_mode == "signup" %}Create your Saasby account to launch AI products, manage submissions, and access your dashboard.{% else %}Log in to your Saasby account to manage launches and track your product submissions.{% endif %}{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
 
 {% block content %}
   <main>
